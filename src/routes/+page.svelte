@@ -286,6 +286,8 @@
 			/>
 		</label>
 
+		<button type="submit" class="primary apply-btn" disabled={!canApplySize}>적용</button>
+
 		<div class="toolbar-actions">
 			<div class="brush-size-group" role="group" aria-label="브러시 크기 선택">
 				<span class="brush-label">브러시</span>
@@ -311,7 +313,6 @@
 					</div>
 				</button>
 			</div>
-			<button type="submit" class="primary" disabled={!canApplySize}>적용</button>
 			<button type="button" onclick={() => handleShape('plus')}>+ 모양</button>
 			<button type="button" onclick={() => handleShape('cross')}>x 모양</button>
 			<button type="button" onclick={resetGrid}>초기화</button>
@@ -537,7 +538,7 @@
 
 	.toolbar {
 		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 9rem)) 1fr;
+		grid-template-columns: repeat(2, minmax(0, 9rem)) auto 1fr;
 		gap: 16px;
 		align-items: end;
 		margin: 0 auto 24px;
@@ -661,7 +662,8 @@
 		grid-template-columns: repeat(5, 1fr);
 	}
 
-	.toolbar-actions button {
+	.toolbar-actions button,
+	.apply-btn {
 		padding: 10px 18px;
 		border: 1px solid var(--panel-border);
 		border-radius: 8px;
@@ -672,19 +674,22 @@
 		transition: all 0.2s ease;
 	}
 
-	.toolbar-actions button.primary {
+	.toolbar-actions button.primary,
+	.apply-btn.primary {
 		border-color: var(--accent-primary);
 		background: var(--accent-primary);
 		color: #ffffff;
 	}
 
-	.toolbar-actions button:hover:not(:disabled) {
+	.toolbar-actions button:hover:not(:disabled),
+	.apply-btn:hover:not(:disabled) {
 		background: var(--button-bg);
 		border-color: var(--text-muted);
 		transform: translateY(-1px);
 	}
 
-	.toolbar-actions button.primary:hover:not(:disabled) {
+	.toolbar-actions button.primary:hover:not(:disabled),
+	.apply-btn.primary:hover:not(:disabled) {
 		background: var(--accent-hover);
 		border-color: var(--accent-primary);
 		box-shadow: 0 0 15px var(--accent-glow);
