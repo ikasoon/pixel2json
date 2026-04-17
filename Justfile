@@ -38,7 +38,14 @@ run-web host=DEV_HOST port=DEV_PORT:
 check-web:
     cd {{ APP_DIR }} && pnpm check
 
+[doc("Run formatting and lint checks for the web app")]
+lint-web:
+    cd {{ APP_DIR }} && pnpm lint
+
+[doc("Format web app source files")]
+format-web:
+    cd {{ APP_DIR }} && pnpm format
+
 [doc("Build the web app for release deployment (host)")]
 build-web: check-web
     cd {{ APP_DIR }} && pnpm build
-
