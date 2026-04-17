@@ -664,13 +664,13 @@
 		font-size: 0.85rem;
 		line-height: 1.6;
 		color: var(--json-text);
-		scrollbar-width: thin;
+		scrollbar-width: auto;
 		scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 	}
 
 	.json-panel pre::-webkit-scrollbar {
-		width: 10px;
-		height: 10px;
+		width: 14px;
+		height: 14px;
 	}
 
 	.json-panel pre::-webkit-scrollbar-track {
