@@ -22,6 +22,7 @@
 	let grid = $state<PixelGrid>(createGrid(DEFAULT_GRID_SIZE.rows, DEFAULT_GRID_SIZE.cols));
 	let copyFeedback = $state('');
 	let copyState = $state<'idle' | 'success' | 'error'>('idle');
+	let isDarkMode = $state(false);
 
 	const parsedRows = $derived(parseGridDimension(rowInput));
 	const parsedCols = $derived(parseGridDimension(colInput));
@@ -169,11 +170,20 @@
 
 <svelte:window onpointerup={endPaint} onpointercancel={endPaint} />
 
-<div class="page-shell">
+<div class="page-shell" class:dark={isDarkMode}>
 	<header class="page-header">
-		<div>
-			<p class="eyebrow">픽셀 JSON</p>
-			<h1>픽셀을 선택하고 바로 JSON으로 변환하세요.</h1>
+		<div class="header-main">
+			<div>
+				<p class="eyebrow">픽셀 JSON</p>
+				<h1>픽셀을 선택하고 바로 JSON으로 변환하세요.</h1>
+			</div>
+			<button class="theme-toggle" onclick={() => (isDarkMode = !isDarkMode)} aria-label="테마 전환">
+				{#if isDarkMode}
+					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+				{:else}
+					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+				{/if}
+			</button>
 		</div>
 		<p class="header-copy">
 			클릭으로 한 칸씩 토글하고, 드래그로 여러 칸을 한 번에 칠할 수 있습니다.
@@ -286,9 +296,10 @@
 			BlinkMacSystemFont,
 			'Segoe UI',
 			sans-serif;
-		background: radial-gradient(circle at top, #18181b 0%, #09090b 100%);
+		background: var(--bg-main);
 		background-attachment: fixed;
-		color: #f4f4f5;
+		color: var(--text-primary);
+		transition: background-color 0.3s ease, color 0.3s ease;
 	}
 
 	:global(button),
@@ -297,8 +308,58 @@
 	}
 
 	.page-shell {
+		/* Light Theme (Default) */
+		--bg-main: radial-gradient(circle at top, #f8fafc 0%, #f1f5f9 100%);
+		--text-primary: #1e293b;
+		--text-secondary: #475569;
+		--text-muted: #64748b;
+		--accent-primary: #3b82f6;
+		--accent-hover: #2563eb;
+		--accent-glow: rgba(59, 130, 246, 0.4);
+		--panel-bg: rgba(255, 255, 255, 0.7);
+		--panel-border: #e2e8f0;
+		--panel-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.05);
+		--input-bg: #ffffff;
+		--button-bg: #f8fafc;
+		--button-border: #e2e8f0;
+		--grid-bg: #e2e8f0;
+		--grid-frame-bg: #f8fafc;
+		--grid-cell-bg: #ffffff;
+		--grid-cell-hover: #f1f5f9;
+		--json-bg: #ffffff;
+		--json-text: #3b82f6;
+		--json-border: #e2e8f0;
+		--scrollbar-track: #f1f5f9;
+		--scrollbar-thumb: #cbd5e1;
+
 		min-height: 100vh;
 		padding: 40px 24px;
+	}
+
+	.page-shell.dark {
+		/* Dark Tech Aesthetic */
+		--bg-main: radial-gradient(circle at top, #18181b 0%, #09090b 100%);
+		--text-primary: #f4f4f5;
+		--text-secondary: #a1a1aa;
+		--text-muted: #71717a;
+		--accent-primary: #3b82f6;
+		--accent-hover: #2563eb;
+		--accent-glow: rgba(59, 130, 246, 0.4);
+		--panel-bg: rgba(12, 12, 14, 0.6);
+		--panel-border: #27272a;
+		--panel-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+		--input-bg: #09090b;
+		--button-bg: #18181b;
+		--button-border: #27272a;
+		--grid-bg: #27272a;
+		--grid-frame-bg: #000000;
+		--grid-cell-bg: #09090b;
+		--grid-cell-hover: #18181b;
+		--json-bg: #000000;
+		--json-text: #3b82f6;
+		--json-border: #18181b;
+		--scrollbar-track: #09090b;
+		--scrollbar-thumb: #27272a;
 	}
 
 	.page-header {
@@ -309,6 +370,33 @@
 		max-width: 1280px;
 	}
 
+	.header-main {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 20px;
+	}
+
+	.theme-toggle {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 40px;
+		height: 40px;
+		border-radius: 10px;
+		border: 1px solid var(--panel-border);
+		background: var(--panel-bg);
+		color: var(--text-primary);
+		cursor: pointer;
+		transition: all 0.2s ease;
+		backdrop-filter: blur(12px);
+	}
+
+	.theme-toggle:hover {
+		background: var(--button-bg);
+		transform: translateY(-1px);
+	}
+
 	.eyebrow,
 	.panel-label {
 		margin: 0 0 8px;
@@ -316,7 +404,7 @@
 		font-weight: 600;
 		letter-spacing: 0.1em;
 		text-transform: uppercase;
-		color: #3b82f6;
+		color: var(--accent-primary);
 	}
 
 	h1,
@@ -336,14 +424,14 @@
 	h2 {
 		font-size: 1.1rem;
 		font-weight: 600;
-		color: #f4f4f5;
+		color: var(--text-primary);
 	}
 
 	.header-copy {
 		max-width: 56ch;
 		font-size: 1.1rem;
 		line-height: 1.6;
-		color: #a1a1aa;
+		color: var(--text-secondary);
 	}
 
 	.toolbar {
@@ -354,11 +442,11 @@
 		margin: 0 auto 24px;
 		max-width: 1280px;
 		padding: 20px;
-		border: 1px solid #27272a;
+		border: 1px solid var(--panel-border);
 		border-radius: 12px;
-		background: rgba(12, 12, 14, 0.6);
+		background: var(--panel-bg);
 		backdrop-filter: blur(12px);
-		box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+		box-shadow: var(--panel-shadow);
 	}
 
 	.field {
@@ -366,22 +454,22 @@
 		gap: 8px;
 		font-size: 0.85rem;
 		font-weight: 600;
-		color: #a1a1aa;
+		color: var(--text-secondary);
 	}
 
 	input {
 		min-width: 0;
 		padding: 10px 14px;
-		border: 1px solid #27272a;
+		border: 1px solid var(--panel-border);
 		border-radius: 8px;
-		background: #09090b;
-		color: #f4f4f5;
+		background: var(--input-bg);
+		color: var(--text-primary);
 		transition: border-color 0.2s ease;
 	}
 
 	input:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: var(--accent-primary);
 	}
 
 	.toolbar-actions {
@@ -393,31 +481,31 @@
 
 	.toolbar-actions button {
 		padding: 10px 18px;
-		border: 1px solid #27272a;
+		border: 1px solid var(--panel-border);
 		border-radius: 8px;
-		background: #18181b;
-		color: #f4f4f5;
+		background: var(--button-bg);
+		color: var(--text-primary);
 		font-weight: 500;
 		cursor: pointer;
 		transition: all 0.2s ease;
 	}
 
 	.toolbar-actions button.primary {
-		border-color: #3b82f6;
-		background: #3b82f6;
+		border-color: var(--accent-primary);
+		background: var(--accent-primary);
 		color: #ffffff;
 	}
 
 	.toolbar-actions button:hover:not(:disabled) {
-		background: #27272a;
-		border-color: #3f3f46;
+		background: var(--button-bg);
+		border-color: var(--text-muted);
 		transform: translateY(-1px);
 	}
 
 	.toolbar-actions button.primary:hover:not(:disabled) {
-		background: #2563eb;
-		border-color: #3b82f6;
-		box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+		background: var(--accent-hover);
+		border-color: var(--accent-primary);
+		box-shadow: 0 0 15px var(--accent-glow);
 	}
 
 	.toolbar-actions button:active:not(:disabled) {
@@ -432,7 +520,7 @@
 	.toolbar-meta {
 		grid-column: 1 / -1;
 		font-size: 0.85rem;
-		color: #71717a;
+		color: var(--text-muted);
 	}
 
 	.workspace {
@@ -450,11 +538,11 @@
 		min-width: 0;
 		min-height: 0;
 		padding: 24px;
-		border: 1px solid #27272a;
+		border: 1px solid var(--panel-border);
 		border-radius: 12px;
-		background: rgba(12, 12, 14, 0.6);
+		background: var(--panel-bg);
 		backdrop-filter: blur(12px);
-		box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+		box-shadow: var(--panel-shadow);
 	}
 
 	.panel-header {
@@ -468,10 +556,10 @@
 	.copy-status {
 		font-size: 0.8rem;
 		font-weight: 500;
-		color: #71717a;
+		color: var(--text-muted);
 		padding: 4px 10px;
 		border-radius: 99px;
-		background: #18181b;
+		background: var(--button-bg);
 		border: 1px solid transparent;
 		transition: all 0.2s ease;
 	}
@@ -495,10 +583,10 @@
 		justify-content: center;
 		min-height: clamp(20rem, 60vh, 48rem);
 		padding: 24px;
-		border: 1px solid #18181b;
+		border: 1px solid var(--panel-border);
 		border-radius: 12px;
-		background: #000000;
-		box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
+		background: var(--grid-frame-bg);
+		box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.05);
 	}
 
 	.pixel-grid {
@@ -507,9 +595,9 @@
 		max-width: 100%;
 		gap: 1px;
 		padding: 1px;
-		border: 1px solid #27272a;
+		border: 1px solid var(--grid-bg);
 		border-radius: 4px;
-		background: #27272a;
+		background: var(--grid-bg);
 		aspect-ratio: var(--cols, 1) / var(--rows, 1);
 		touch-action: none;
 		user-select: none;
@@ -521,33 +609,33 @@
 		padding: 0;
 		border: 0;
 		border-radius: 1px;
-		background: #09090b;
+		background: var(--grid-cell-bg);
 		cursor: pointer;
 		touch-action: none;
 		transition: all 0.15s ease;
 	}
 
 	.pixel-grid button:hover {
-		background: #18181b;
+		background: var(--grid-cell-hover);
 		box-shadow: inset 0 0 8px rgba(59, 130, 246, 0.1);
 		z-index: 1;
 	}
 
 	.pixel-grid button:focus-visible {
-		background: #18181b;
-		outline: 2px solid #3b82f6;
+		background: var(--grid-cell-hover);
+		outline: 2px solid var(--accent-primary);
 		outline-offset: -2px;
 	}
 
 	.pixel-grid button.active {
-		background: #3b82f6;
-		box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+		background: var(--accent-primary);
+		box-shadow: 0 0 12px var(--accent-glow);
 	}
 
 	.pixel-grid button.active:hover,
 	.pixel-grid button.active:focus-visible {
-		background: #60a5fa;
-		box-shadow: 0 0 20px rgba(59, 130, 246, 0.7);
+		background: var(--accent-hover);
+		box-shadow: 0 0 20px var(--accent-glow);
 	}
 
 	.json-panel {
@@ -565,9 +653,9 @@
 		overflow: auto;
 		margin: 0;
 		padding: 20px;
-		border: 1px solid #18181b;
+		border: 1px solid var(--json-border);
 		border-radius: 8px;
-		background: #000000;
+		background: var(--json-bg);
 		scrollbar-gutter: stable both-edges;
 		white-space: pre;
 		overflow-wrap: normal;
@@ -575,7 +663,7 @@
 		font-family: 'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Consolas, monospace;
 		font-size: 0.85rem;
 		line-height: 1.6;
-		color: #3b82f6;
+		color: var(--json-text);
 	}
 
 	.json-panel pre::-webkit-scrollbar {
@@ -584,18 +672,18 @@
 	}
 
 	.json-panel pre::-webkit-scrollbar-track {
-		background: #09090b;
+		background: var(--scrollbar-track);
 		border-radius: 0;
 	}
 
 	.json-panel pre::-webkit-scrollbar-thumb {
-		background: #27272a;
-		border: 2px solid #09090b;
+		background: var(--scrollbar-thumb);
+		border: 2px solid var(--scrollbar-track);
 		border-radius: 10px;
 	}
 
 	.json-panel pre::-webkit-scrollbar-thumb:hover {
-		background: #3f3f46;
+		background: var(--text-muted);
 	}
 
 	@media (max-width: 920px) {
