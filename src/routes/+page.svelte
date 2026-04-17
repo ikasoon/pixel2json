@@ -5,6 +5,7 @@
 	import {
 		DEFAULT_GRID_SIZE,
 		MAX_GRID_SIZE,
+		MIN_GRID_SIZE,
 		applyShape,
 		clearGrid,
 		createGrid,
@@ -198,6 +199,20 @@
 		}
 	}
 
+	function incrementDimension(input: string, setInput: (v: string) => void): void {
+		const current = parseInt(input, 10) || 0;
+		if (current < MAX_GRID_SIZE) {
+			setInput(String(current + 1));
+		}
+	}
+
+	function decrementDimension(input: string, setInput: (v: string) => void): void {
+		const current = parseInt(input, 10) || 0;
+		if (current > MIN_GRID_SIZE) {
+			setInput(String(current - 1));
+		}
+	}
+
 	function handleSizeSubmit(event: SubmitEvent): void {
 		event.preventDefault();
 
@@ -264,26 +279,42 @@
 	<form class="toolbar" onsubmit={handleSizeSubmit}>
 		<label class="field">
 			<span>가로</span>
-			<input
-				type="number"
-				min="1"
-				max={MAX_GRID_SIZE}
-				inputmode="numeric"
-				value={colInput}
-				oninput={handleColInput}
-			/>
+			<div class="number-input-wrapper">
+				<button type="button" class="num-btn" onclick={() => decrementDimension(colInput, (v) => colInput = v)} aria-label="감소">
+					<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+				</button>
+				<input
+					type="number"
+					min="1"
+					max={MAX_GRID_SIZE}
+					inputmode="numeric"
+					value={colInput}
+					oninput={handleColInput}
+				/>
+				<button type="button" class="num-btn" onclick={() => incrementDimension(colInput, (v) => colInput = v)} aria-label="증가">
+					<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+				</button>
+			</div>
 		</label>
 
 		<label class="field">
 			<span>세로</span>
-			<input
-				type="number"
-				min="1"
-				max={MAX_GRID_SIZE}
-				inputmode="numeric"
-				value={rowInput}
-				oninput={handleRowInput}
-			/>
+			<div class="number-input-wrapper">
+				<button type="button" class="num-btn" onclick={() => decrementDimension(rowInput, (v) => rowInput = v)} aria-label="감소">
+					<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+				</button>
+				<input
+					type="number"
+					min="1"
+					max={MAX_GRID_SIZE}
+					inputmode="numeric"
+					value={rowInput}
+					oninput={handleRowInput}
+				/>
+				<button type="button" class="num-btn" onclick={() => incrementDimension(rowInput, (v) => rowInput = v)} aria-label="증가">
+					<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+				</button>
+			</div>
 		</label>
 
 		<button type="submit" class="primary apply-btn" disabled={!canApplySize}>적용</button>
@@ -567,6 +598,57 @@
 		background: var(--input-bg);
 		color: var(--text-primary);
 		transition: border-color 0.2s ease;
+		text-align: center;
+		-moz-appearance: textfield;
+	}
+
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	.number-input-wrapper {
+		display: flex;
+		align-items: center;
+		background: var(--input-bg);
+		border: 1px solid var(--panel-border);
+		border-radius: 8px;
+		overflow: hidden;
+		transition: border-color 0.2s ease;
+	}
+
+	.number-input-wrapper:focus-within {
+		border-color: var(--accent-primary);
+	}
+
+	.number-input-wrapper input {
+		border: none;
+		border-radius: 0;
+		width: 50px;
+		padding: 10px 0;
+	}
+
+	.num-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 36px;
+		height: 40px;
+		border: none;
+		background: transparent;
+		color: var(--text-secondary);
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.num-btn:hover {
+		background: var(--button-bg);
+		color: var(--accent-primary);
+	}
+
+	.num-btn:active {
+		background: var(--panel-border);
 	}
 
 	input:focus {
