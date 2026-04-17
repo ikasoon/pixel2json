@@ -432,7 +432,7 @@
 		display: grid;
 		gap: 12px;
 		margin: 0 auto 40px;
-		max-width: 1280px;
+		max-width: 1536px;
 	}
 
 	.header-main {
@@ -505,7 +505,7 @@
 		gap: 16px;
 		align-items: end;
 		margin: 0 auto 24px;
-		max-width: 1280px;
+		max-width: 1536px;
 		padding: 20px;
 		border: 1px solid var(--panel-border);
 		border-radius: 12px;
@@ -671,11 +671,11 @@
 
 	.workspace {
 		display: grid;
-		grid-template-columns: minmax(0, 1.8fr) minmax(19rem, 1fr);
+		grid-template-columns: minmax(0, 1.4fr) minmax(24rem, 1fr);
 		gap: 24px;
 		align-items: start;
 		margin: 0 auto;
-		max-width: 1280px;
+		max-width: 1536px;
 	}
 
 	.panel {
