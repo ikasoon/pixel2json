@@ -62,15 +62,47 @@
 	let copyFeedbackTimer: ReturnType<typeof setTimeout> | undefined;
 
 	let brushSize = $state<number>(0);
-	let hoverRow = $state<number | null>(null);
-	let hoverCol = $state<number | null>(null);
+	
+	let gridContainer: HTMLDivElement | undefined = $state();
+	let currentHoverR: number | null = null;
+	let currentHoverC: number | null = null;
+	let lastHoveredCells: {r: number, c: number}[] = [];
 
-	const brushSizeSq = $derived(brushSize * brushSize);
+	function updateHoverState(r: number | null, c: number | null): void {
+		currentHoverR = r;
+		currentHoverC = c;
 
-	function isHoverCell(r: number, c: number): boolean {
-		if (hoverRow === null || hoverCol === null) return false;
-		return (r - hoverRow) * (r - hoverRow) + (c - hoverCol) * (c - hoverCol) <= brushSizeSq;
+		if (!gridContainer) return;
+		
+		const buttons = gridContainer.children;
+		const cols = colCount;
+
+		for (const { r: oldR, c: oldC } of lastHoveredCells) {
+			const idx = oldR * cols + oldC;
+			const btn = buttons[idx];
+			if (btn) btn.classList.remove('hover');
+		}
+
+		if (r === null || c === null) {
+			lastHoveredCells = [];
+			return;
+		}
+
+		lastHoveredCells = getCircleCells(r, c, brushSize, rowCount, colCount);
+		for (const { r: newR, c: newC } of lastHoveredCells) {
+			const idx = newR * cols + newC;
+			const btn = buttons[idx];
+			if (btn) btn.classList.add('hover');
+		}
 	}
+
+	$effect(() => {
+		// Re-apply hover if brush size changes while hovering
+		brushSize;
+		if (currentHoverR !== null && currentHoverC !== null) {
+			updateHoverState(currentHoverR, currentHoverC);
+		}
+	});
 
 	onDestroy(() => {
 		if (copyFeedbackTimer) {
@@ -112,11 +144,10 @@
 			return;
 		}
 
-		grid = paintCells(grid, unvisitedCells, paintValue);
-		
-		unvisitedCells.forEach(c => {
-			visitedCells[getCellKey(c.r, c.c)] = true;
-		});
+		for (const { r, c } of unvisitedCells) {
+			grid[r][c] = paintValue;
+			visitedCells[getCellKey(r, c)] = true;
+		}
 	}
 
 	function beginPaint(event: PointerEvent, row: number, col: number): void {
@@ -173,17 +204,15 @@
 	function handleGridPointerOver(event: PointerEvent): void {
 		const cell = getCellFromEvent(event);
 		if (cell) {
-			if (hoverRow !== cell.r || hoverCol !== cell.c) {
-				hoverRow = cell.r;
-				hoverCol = cell.c;
+			if (currentHoverR !== cell.r || currentHoverC !== cell.c) {
+				updateHoverState(cell.r, cell.c);
 			}
 			continuePaint(event, cell.r, cell.c);
 		}
 	}
 
 	function handleGridPointerLeave(): void {
-		hoverRow = null;
-		hoverCol = null;
+		updateHoverState(null, null);
 	}
 
 	function handleGridKeyDown(event: KeyboardEvent): void {
@@ -195,7 +224,9 @@
 			event.preventDefault();
 			const cellsToPaint = getCircleCells(cell.r, cell.c, brushSize, rowCount, colCount);
 			const nextValue: PixelCell = grid[cell.r][cell.c] === 1 ? 0 : 1;
-			grid = paintCells(grid, cellsToPaint, nextValue);
+			for (const { r, c } of cellsToPaint) {
+				grid[r][c] = nextValue;
+			}
 		}
 	}
 
@@ -375,6 +406,7 @@
 					role="grid"
 					aria-label={`Pixel grid ${colCount} by ${rowCount}`}
 					style={`grid-template-columns: repeat(${colCount}, minmax(0, 1fr)); --cols: ${colCount}; --rows: ${rowCount};`}
+					bind:this={gridContainer}
 					onpointerdown={handleGridPointerDown}
 					onpointerover={handleGridPointerOver}
 					onpointerleave={handleGridPointerLeave}
@@ -385,7 +417,6 @@
 							<button
 								type="button"
 								class:active={cell === 1}
-								class:hover={isHoverCell(rowIndex, colIndex)}
 								aria-label={`Column ${colIndex + 1}, row ${rowIndex + 1}, ${cell === 1 ? 'selected' : 'empty'}`}
 								aria-pressed={cell === 1}
 								data-r={rowIndex}
