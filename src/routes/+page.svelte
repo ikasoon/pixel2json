@@ -180,8 +180,8 @@
 	<header class="page-header">
 		<div class="header-main">
 			<div>
-				<p class="eyebrow">픽셀 JSON</p>
-				<h1>픽셀을 선택하고 바로 JSON으로 변환하세요.</h1>
+				<p class="eyebrow">PIXEL2JSON</p>
+				<h1>픽셀을 그리고 바로 JSON으로 변환하세요.</h1>
 			</div>
 			<button class="theme-toggle" onclick={() => (isDarkMode = !isDarkMode)} aria-label="테마 전환">
 				{#if isDarkMode}
