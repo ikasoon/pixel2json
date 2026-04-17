@@ -289,6 +289,7 @@
 	}
 
 	.page-header {
+		container-type: inline-size;
 		display: grid;
 		gap: 12px;
 		margin: 0 auto 24px;
@@ -311,9 +312,10 @@
 	}
 
 	h1 {
-		max-width: 14ch;
-		font-size: 3.25rem;
+		max-width: none;
+		font-size: clamp(1rem, 4cqi, 3.25rem);
 		line-height: 1;
+		white-space: nowrap;
 	}
 
 	h2 {
@@ -518,25 +520,44 @@
 		min-height: 0;
 		width: 100%;
 		height: 100%;
-		overflow: auto;
+		overflow: scroll;
 		margin: 0;
 		padding: 16px;
 		border: 1px solid #d6d8c8;
 		border-radius: 8px;
 		background: #fbfaf4;
+		scrollbar-gutter: stable both-edges;
 		white-space: pre;
 		overflow-wrap: normal;
 		word-break: normal;
+		scrollbar-width: auto;
+		scrollbar-color: #ad5132 #eaded4;
 		font-family: 'SFMono-Regular', 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
 		font-size: 0.88rem;
 		line-height: 1.55;
 	}
 
-	@media (max-width: 920px) {
-		h1 {
-			font-size: 2.8rem;
-		}
+	.json-panel pre::-webkit-scrollbar {
+		width: 12px;
+		height: 12px;
+	}
 
+	.json-panel pre::-webkit-scrollbar-track {
+		background: #eaded4;
+		border-radius: 999px;
+	}
+
+	.json-panel pre::-webkit-scrollbar-thumb {
+		background: #ad5132;
+		border: 2px solid #eaded4;
+		border-radius: 999px;
+	}
+
+	.json-panel pre::-webkit-scrollbar-corner {
+		background: #eaded4;
+	}
+
+	@media (max-width: 920px) {
 		.toolbar {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
@@ -571,11 +592,6 @@
 
 		.toolbar {
 			padding: 14px;
-		}
-
-		h1 {
-			max-width: 12ch;
-			font-size: 2.25rem;
 		}
 	}
 </style>
