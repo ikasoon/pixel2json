@@ -244,7 +244,8 @@
 		</label>
 
 		<div class="toolbar-actions">
-			<div class="brush-size-group">
+			<div class="brush-size-group" role="group" aria-label="브러시 크기 선택">
+				<span class="brush-label">브러시</span>
 				<button type="button" class="brush-btn" class:active={brushSize === 0} onclick={() => brushSize = 0} aria-label="브러시 S">
 					<div class="brush-icon size-s">
 						<div></div>
@@ -545,11 +546,19 @@
 
 	.brush-size-group {
 		display: flex;
+		align-items: center;
 		gap: 4px;
-		padding: 4px;
+		padding: 4px 4px 4px 12px;
 		border: 1px solid var(--panel-border);
 		border-radius: 10px;
 		background: var(--input-bg);
+	}
+
+	.brush-label {
+		font-size: 0.8rem;
+		font-weight: 600;
+		color: var(--text-secondary);
+		margin-right: 2px;
 	}
 
 	.brush-btn {
