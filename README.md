@@ -1,42 +1,27 @@
-# sv
+# PIXEL2JSON
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+픽셀을 그리고 바로 JSON (0과 1로 이루어진 2차원 배열)으로 변환해주는 웹 도구입니다.
 
-## Creating a project
+![Screenshot](assets/Screenshot.png)
 
-If you're seeing this, you've probably already done this step. Congrats!
+## 주요 기능
 
-```sh
-# create a new project
-npx sv create my-app
-```
+* **픽셀 그리기**: 클릭으로 한 칸씩 토글하거나, 마우스를 드래그하여 여러 칸을 한 번에 부드럽게 칠할 수 있습니다.
+* **브러시 크기 조절**: S, M, L 세 가지 크기의 브러시를 지원하여 넓은 영역도 쉽게 칠할 수 있습니다.
+* **그리드 크기 설정**: 1x1부터 최대 64x64까지 가로/세로 픽셀 그리드 크기를 자유롭게 변경할 수 있습니다.
+* **실시간 JSON 변환**: 화면에 그린 픽셀 모양이 즉시 0과 1로 이루어진 2차원 배열 형태의 JSON으로 우측에 나타납니다.
+* **테마 지원**: 라이트 모드와 다크 모드를 지원합니다.
 
-To recreate this project with the same configuration:
+## 로컬에서 실행하기
 
-```sh
-# recreate this project
-pnpm dlx sv@0.15.1 create --template minimal --types ts --add eslint prettier --install pnpm .
-```
+1. 패키지를 설치합니다:
+   ```bash
+   pnpm install
+   ```
 
-## Developing
+2. 개발 서버를 실행합니다:
+   ```bash
+   pnpm run dev
+   ```
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+3. 브라우저에서 `http://localhost:5173` 으로 접속하여 사용합니다.
