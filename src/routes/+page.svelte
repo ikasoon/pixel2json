@@ -330,7 +330,7 @@
 		--json-text: #3b82f6;
 		--json-border: #e2e8f0;
 		--scrollbar-track: #f1f5f9;
-		--scrollbar-thumb: #cbd5e1;
+		--scrollbar-thumb: #94a3b8;
 
 		min-height: 100vh;
 		padding: 40px 24px;
@@ -359,7 +359,7 @@
 		--json-text: #3b82f6;
 		--json-border: #18181b;
 		--scrollbar-track: #09090b;
-		--scrollbar-thumb: #27272a;
+		--scrollbar-thumb: #3f3f46;
 	}
 
 	.page-header {
@@ -646,6 +646,7 @@
 	}
 
 	.json-panel pre {
+		box-sizing: border-box;
 		min-width: 0;
 		min-height: 0;
 		width: 100%;
@@ -656,7 +657,6 @@
 		border: 1px solid var(--json-border);
 		border-radius: 8px;
 		background: var(--json-bg);
-		scrollbar-gutter: stable both-edges;
 		white-space: pre;
 		overflow-wrap: normal;
 		word-break: normal;
@@ -664,6 +664,8 @@
 		font-size: 0.85rem;
 		line-height: 1.6;
 		color: var(--json-text);
+		scrollbar-width: thin;
+		scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 	}
 
 	.json-panel pre::-webkit-scrollbar {
