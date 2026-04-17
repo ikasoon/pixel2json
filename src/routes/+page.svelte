@@ -410,6 +410,7 @@
 		display: grid;
 		grid-template-columns: minmax(0, 1.8fr) minmax(19rem, 1fr);
 		gap: 24px;
+		align-items: start;
 		margin: 0 auto;
 		max-width: 1280px;
 	}
@@ -417,6 +418,8 @@
 	.panel {
 		display: grid;
 		gap: 16px;
+		min-width: 0;
+		min-height: 0;
 		padding: 16px;
 		border: 1px solid #d3c8bf;
 		border-radius: 8px;
@@ -503,13 +506,28 @@
 		background: #b75a3a;
 	}
 
+	.json-panel {
+		grid-template-rows: auto minmax(0, 1fr);
+		align-self: start;
+		height: min(70vh, 42rem);
+		overflow: hidden;
+	}
+
 	.json-panel pre {
+		min-width: 0;
+		min-height: 0;
+		width: 100%;
+		height: 100%;
 		overflow: auto;
 		margin: 0;
 		padding: 16px;
 		border: 1px solid #d6d8c8;
 		border-radius: 8px;
 		background: #fbfaf4;
+		white-space: pre;
+		overflow-wrap: normal;
+		word-break: normal;
+		font-family: 'SFMono-Regular', 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
 		font-size: 0.88rem;
 		line-height: 1.55;
 	}
@@ -535,6 +553,10 @@
 		.grid-frame {
 			--grid-max-height: min(48vh, 30rem);
 			min-height: clamp(16rem, 48vh, 30rem);
+		}
+
+		.json-panel {
+			height: min(24rem, 45vh);
 		}
 	}
 

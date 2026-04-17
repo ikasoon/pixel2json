@@ -39,7 +39,13 @@ export function paintCell(grid: PixelGrid, row: number, col: number, value: Pixe
 }
 
 export function serializeGrid(grid: PixelGrid): string {
-	return JSON.stringify(grid, null, 2);
+	if (grid.length === 0) {
+		return '[]';
+	}
+
+	const rows = grid.map((row) => `  [${row.join(', ')}]`);
+
+	return `[\n${rows.join(',\n')}\n]`;
 }
 
 export function parseGridDimension(value: string): number | null {
