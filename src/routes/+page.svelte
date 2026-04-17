@@ -245,9 +245,27 @@
 
 		<div class="toolbar-actions">
 			<div class="brush-size-group">
-				<button type="button" class:active={brushSize === 0} onclick={() => brushSize = 0}>브러시 S</button>
-				<button type="button" class:active={brushSize === 1} onclick={() => brushSize = 1}>브러시 M</button>
-				<button type="button" class:active={brushSize === 2} onclick={() => brushSize = 2}>브러시 L</button>
+				<button type="button" class="brush-btn" class:active={brushSize === 0} onclick={() => brushSize = 0} aria-label="브러시 S">
+					<div class="brush-icon size-s">
+						<div></div>
+					</div>
+				</button>
+				<button type="button" class="brush-btn" class:active={brushSize === 1} onclick={() => brushSize = 1} aria-label="브러시 M">
+					<div class="brush-icon size-m">
+						<div class="empty"></div><div class="fill"></div><div class="empty"></div>
+						<div class="fill"></div><div class="fill"></div><div class="fill"></div>
+						<div class="empty"></div><div class="fill"></div><div class="empty"></div>
+					</div>
+				</button>
+				<button type="button" class="brush-btn" class:active={brushSize === 2} onclick={() => brushSize = 2} aria-label="브러시 L">
+					<div class="brush-icon size-l">
+						<div class="empty"></div><div class="empty"></div><div class="fill"></div><div class="empty"></div><div class="empty"></div>
+						<div class="empty"></div><div class="fill"></div><div class="fill"></div><div class="fill"></div><div class="empty"></div>
+						<div class="fill"></div><div class="fill"></div><div class="fill"></div><div class="fill"></div><div class="fill"></div>
+						<div class="empty"></div><div class="fill"></div><div class="fill"></div><div class="fill"></div><div class="empty"></div>
+						<div class="empty"></div><div class="empty"></div><div class="fill"></div><div class="empty"></div><div class="empty"></div>
+					</div>
+				</button>
 			</div>
 			<button type="submit" class="primary" disabled={!canApplySize}>적용</button>
 			<button type="button" onclick={() => handleShape('plus')}>+ 모양</button>
@@ -534,19 +552,68 @@
 		background: var(--input-bg);
 	}
 
-	.brush-size-group button {
-		padding: 6px 12px;
+	.brush-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 36px;
+		height: 36px;
+		padding: 0 !important;
 		border: none !important;
 		border-radius: 6px !important;
 		background: transparent !important;
-		font-size: 0.85rem;
 		box-shadow: none !important;
+		cursor: pointer;
 	}
 
-	.brush-size-group button.active {
+	.brush-btn:hover {
 		background: var(--button-bg) !important;
-		color: var(--accent-primary);
-		font-weight: 600;
+	}
+
+	.brush-btn.active {
+		background: var(--button-bg) !important;
+	}
+
+	.brush-icon {
+		display: grid;
+		gap: 1px;
+	}
+
+	.brush-icon div {
+		width: 4px;
+		height: 4px;
+		border-radius: 0.5px;
+		background: var(--text-muted);
+		opacity: 0.4;
+	}
+
+	.brush-icon div.fill, .size-s div {
+		background: var(--text-secondary);
+		opacity: 1;
+	}
+
+	.brush-icon div.empty {
+		background: transparent;
+	}
+
+	.brush-btn.active .brush-icon div.fill, .brush-btn.active .size-s div {
+		background: var(--accent-primary);
+	}
+
+	.brush-icon.size-s {
+		grid-template-columns: 1fr;
+	}
+	.brush-icon.size-s div {
+		width: 6px;
+		height: 6px;
+	}
+
+	.brush-icon.size-m {
+		grid-template-columns: repeat(3, 1fr);
+	}
+
+	.brush-icon.size-l {
+		grid-template-columns: repeat(5, 1fr);
 	}
 
 	.toolbar-actions button {
