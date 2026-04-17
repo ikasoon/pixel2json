@@ -5,6 +5,7 @@
 	import {
 		DEFAULT_GRID_SIZE,
 		MAX_GRID_SIZE,
+		applyShape,
 		clearGrid,
 		createGrid,
 		parseGridDimension,
@@ -145,6 +146,11 @@
 		endPaint();
 	}
 
+	function handleShape(shape: 'plus' | 'cross'): void {
+		grid = applyShape(grid, shape);
+		endPaint();
+	}
+
 	function resetGrid(): void {
 		grid = clearGrid(grid);
 		endPaint();
@@ -217,6 +223,8 @@
 
 		<div class="toolbar-actions">
 			<button type="submit" class="primary" disabled={!canApplySize}>적용</button>
+			<button type="button" onclick={() => handleShape('plus')}>+ 모양</button>
+			<button type="button" onclick={() => handleShape('cross')}>x 모양</button>
 			<button type="button" onclick={resetGrid}>초기화</button>
 			<button type="button" onclick={copyJson}>JSON 복사</button>
 		</div>

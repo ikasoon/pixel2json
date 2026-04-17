@@ -63,3 +63,31 @@ export function parseGridDimension(value: string): number | null {
 
 	return parsed;
 }
+
+export function applyShape(grid: PixelGrid, shape: 'plus' | 'cross'): PixelGrid {
+	const rows = grid.length;
+	const cols = grid[0]?.length ?? 0;
+	if (rows === 0 || cols === 0) return grid;
+
+	const newGrid = createGrid(rows, cols);
+
+	for (let r = 0; r < rows; r++) {
+		for (let c = 0; c < cols; c++) {
+			if (shape === 'plus') {
+				const isCenterRow = r === Math.floor(rows / 2) || (rows % 2 === 0 && r === Math.floor(rows / 2) - 1);
+				const isCenterCol = c === Math.floor(cols / 2) || (cols % 2 === 0 && c === Math.floor(cols / 2) - 1);
+				if (isCenterRow || isCenterCol) {
+					newGrid[r][c] = 1;
+				}
+			} else if (shape === 'cross') {
+				const expectedC1 = Math.round((r * (cols - 1)) / Math.max(1, rows - 1));
+				const expectedC2 = Math.round(((rows - 1 - r) * (cols - 1)) / Math.max(1, rows - 1));
+				if (c === expectedC1 || c === expectedC2) {
+					newGrid[r][c] = 1;
+				}
+			}
+		}
+	}
+
+	return newGrid;
+}
