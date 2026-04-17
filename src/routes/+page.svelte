@@ -31,7 +31,17 @@
 	const parsedCols = $derived(parseGridDimension(colInput));
 	const rowCount = $derived(grid.length);
 	const colCount = $derived(grid[0]?.length ?? 0);
-	const jsonPreview = $derived(serializeGrid(grid));
+	
+	let debouncedGrid = $state<PixelGrid>([]);
+	$effect(() => {
+		const g = grid;
+		let handle = requestAnimationFrame(() => {
+			debouncedGrid = g;
+		});
+		return () => cancelAnimationFrame(handle);
+	});
+
+	const jsonPreview = $derived(serializeGrid(debouncedGrid.length ? debouncedGrid : grid));
 	const canApplySize = $derived(
 		parsedRows !== null &&
 			parsedCols !== null &&
@@ -54,14 +64,11 @@
 	let hoverRow = $state<number | null>(null);
 	let hoverCol = $state<number | null>(null);
 
-	const hoverCells = $derived(
-		hoverRow !== null && hoverCol !== null
-			? getCircleCells(hoverRow, hoverCol, brushSize, rowCount, colCount)
-			: []
-	);
+	const brushSizeSq = $derived(brushSize * brushSize);
 
 	function isHoverCell(r: number, c: number): boolean {
-		return hoverCells.some((cell) => cell.r === r && cell.c === c);
+		if (hoverRow === null || hoverCol === null) return false;
+		return (r - hoverRow) * (r - hoverRow) + (c - hoverCol) * (c - hoverCol) <= brushSizeSq;
 	}
 
 	onDestroy(() => {
@@ -144,15 +151,51 @@
 		visitedCells = {};
 	}
 
-	function handleCellKeydown(event: KeyboardEvent, row: number, col: number): void {
-		if (event.key !== ' ' && event.key !== 'Enter') {
-			return;
+	function getCellFromEvent(event: Event): { r: number; c: number } | null {
+		const target = event.target as HTMLElement;
+		if (!target || !target.getAttribute) return null;
+		const r = target.getAttribute('data-r');
+		const c = target.getAttribute('data-c');
+		if (r !== null && c !== null) {
+			return { r: parseInt(r, 10), c: parseInt(c, 10) };
 		}
+		return null;
+	}
 
-		event.preventDefault();
-		const cellsToPaint = getCircleCells(row, col, brushSize, rowCount, colCount);
-		const nextValue: PixelCell = grid[row][col] === 1 ? 0 : 1;
-		grid = paintCells(grid, cellsToPaint, nextValue);
+	function handleGridPointerDown(event: PointerEvent): void {
+		const cell = getCellFromEvent(event);
+		if (cell) {
+			beginPaint(event, cell.r, cell.c);
+		}
+	}
+
+	function handleGridPointerOver(event: PointerEvent): void {
+		const cell = getCellFromEvent(event);
+		if (cell) {
+			if (hoverRow !== cell.r || hoverCol !== cell.c) {
+				hoverRow = cell.r;
+				hoverCol = cell.c;
+			}
+			continuePaint(event, cell.r, cell.c);
+		}
+	}
+
+	function handleGridPointerLeave(): void {
+		hoverRow = null;
+		hoverCol = null;
+	}
+
+	function handleGridKeyDown(event: KeyboardEvent): void {
+		const cell = getCellFromEvent(event);
+		if (cell) {
+			if (event.key !== ' ' && event.key !== 'Enter') {
+				return;
+			}
+			event.preventDefault();
+			const cellsToPaint = getCircleCells(cell.r, cell.c, brushSize, rowCount, colCount);
+			const nextValue: PixelCell = grid[cell.r][cell.c] === 1 ? 0 : 1;
+			grid = paintCells(grid, cellsToPaint, nextValue);
+		}
 	}
 
 	function handleSizeSubmit(event: SubmitEvent): void {
@@ -300,6 +343,10 @@
 					role="grid"
 					aria-label={`Pixel grid ${colCount} by ${rowCount}`}
 					style={`grid-template-columns: repeat(${colCount}, minmax(0, 1fr)); --cols: ${colCount}; --rows: ${rowCount};`}
+					onpointerdown={handleGridPointerDown}
+					onpointerover={handleGridPointerOver}
+					onpointerleave={handleGridPointerLeave}
+					onkeydown={handleGridKeyDown}
 				>
 					{#each grid as line, rowIndex (rowIndex)}
 						{#each line as cell, colIndex (`${rowIndex}:${colIndex}`)}
@@ -309,19 +356,8 @@
 								class:hover={isHoverCell(rowIndex, colIndex)}
 								aria-label={`Column ${colIndex + 1}, row ${rowIndex + 1}, ${cell === 1 ? 'selected' : 'empty'}`}
 								aria-pressed={cell === 1}
-								onpointerdown={(event) => beginPaint(event, rowIndex, colIndex)}
-								onpointerenter={(event) => {
-									hoverRow = rowIndex;
-									hoverCol = colIndex;
-									continuePaint(event, rowIndex, colIndex);
-								}}
-								onpointerleave={() => {
-									if (hoverRow === rowIndex && hoverCol === colIndex) {
-										hoverRow = null;
-										hoverCol = null;
-									}
-								}}
-								onkeydown={(event) => handleCellKeydown(event, rowIndex, colIndex)}
+								data-r={rowIndex}
+								data-c={colIndex}
 							></button>
 						{/each}
 					{/each}
