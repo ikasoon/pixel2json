@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
+	import { fade, slide } from 'svelte/transition';
 
 	import {
 		DEFAULT_GRID_SIZE,
@@ -210,7 +211,11 @@
 			<button type="button" onclick={copyJson}>JSON 복사</button>
 		</div>
 
-		<p class="toolbar-meta">{toolbarMessage}</p>
+		<p class="toolbar-meta">
+			{#key toolbarMessage}
+				<span in:fade={{ duration: 150 }}>{toolbarMessage}</span>
+			{/key}
+		</p>
 	</form>
 
 	<div class="workspace">
@@ -255,7 +260,13 @@
 					<p class="panel-label">미리보기</p>
 					<h2 id="json-title">JSON</h2>
 				</div>
-				<p class={`copy-status ${copyState}`}>{copyFeedback || '실시간으로 반영됩니다.'}</p>
+				{#if copyFeedback}
+					<p class={`copy-status ${copyState}`} in:slide={{ axis: 'x', duration: 200 }} out:fade>
+						{copyFeedback}
+					</p>
+				{:else}
+					<p class="copy-status idle">실시간으로 반영됩니다.</p>
+				{/if}
 			</div>
 
 			<pre>{jsonPreview}</pre>
@@ -267,6 +278,7 @@
 	:global(body) {
 		margin: 0;
 		font-family:
+			'Inter Variable',
 			Inter,
 			ui-sans-serif,
 			system-ui,
@@ -274,8 +286,9 @@
 			BlinkMacSystemFont,
 			'Segoe UI',
 			sans-serif;
-		background: linear-gradient(180deg, #f4f6ef 0%, #f3ece8 100%);
-		color: #13221e;
+		background: radial-gradient(circle at top, #18181b 0%, #09090b 100%);
+		background-attachment: fixed;
+		color: #f4f4f5;
 	}
 
 	:global(button),
@@ -285,24 +298,25 @@
 
 	.page-shell {
 		min-height: 100vh;
-		padding: 24px;
+		padding: 40px 24px;
 	}
 
 	.page-header {
 		container-type: inline-size;
 		display: grid;
 		gap: 12px;
-		margin: 0 auto 24px;
+		margin: 0 auto 40px;
 		max-width: 1280px;
 	}
 
 	.eyebrow,
 	.panel-label {
 		margin: 0 0 8px;
-		font-size: 0.8rem;
-		font-weight: 700;
+		font-size: 0.75rem;
+		font-weight: 600;
+		letter-spacing: 0.1em;
 		text-transform: uppercase;
-		color: #7a4b36;
+		color: #3b82f6;
 	}
 
 	h1,
@@ -313,99 +327,112 @@
 
 	h1 {
 		max-width: none;
-		font-size: clamp(1rem, 4cqi, 3.25rem);
-		line-height: 1;
-		white-space: nowrap;
+		font-size: clamp(1.25rem, 4cqi, 3rem);
+		font-weight: 800;
+		line-height: 1.1;
+		letter-spacing: -0.02em;
 	}
 
 	h2 {
 		font-size: 1.1rem;
+		font-weight: 600;
+		color: #f4f4f5;
 	}
 
 	.header-copy {
 		max-width: 56ch;
-		font-size: 1rem;
+		font-size: 1.1rem;
 		line-height: 1.6;
-		color: #36594f;
+		color: #a1a1aa;
 	}
 
 	.toolbar {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 9rem)) 1fr;
-		gap: 12px;
+		gap: 16px;
 		align-items: end;
 		margin: 0 auto 24px;
 		max-width: 1280px;
-		padding: 16px;
-		border: 1px solid #cfbeae;
-		border-radius: 8px;
-		background: rgba(255, 255, 255, 0.72);
-		backdrop-filter: blur(14px);
+		padding: 20px;
+		border: 1px solid #27272a;
+		border-radius: 12px;
+		background: rgba(12, 12, 14, 0.6);
+		backdrop-filter: blur(12px);
+		box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
 	}
 
 	.field {
 		display: grid;
 		gap: 8px;
-		font-size: 0.92rem;
+		font-size: 0.85rem;
 		font-weight: 600;
+		color: #a1a1aa;
 	}
 
 	input {
 		min-width: 0;
-		padding: 11px 12px;
-		border: 1px solid #b59480;
+		padding: 10px 14px;
+		border: 1px solid #27272a;
 		border-radius: 8px;
-		background: #fff;
-		color: #13221e;
+		background: #09090b;
+		color: #f4f4f5;
+		transition: border-color 0.2s ease;
+	}
+
+	input:focus {
+		outline: none;
+		border-color: #3b82f6;
 	}
 
 	.toolbar-actions {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 8px;
+		gap: 10px;
 		justify-content: flex-end;
 	}
 
 	.toolbar-actions button {
-		padding: 11px 14px;
-		border: 1px solid #be9b82;
+		padding: 10px 18px;
+		border: 1px solid #27272a;
 		border-radius: 8px;
-		background: #fdf8f5;
-		color: #13221e;
+		background: #18181b;
+		color: #f4f4f5;
+		font-weight: 500;
 		cursor: pointer;
-		transition:
-			background-color 120ms ease,
-			border-color 120ms ease;
+		transition: all 0.2s ease;
 	}
 
 	.toolbar-actions button.primary {
-		border-color: #ad5132;
-		background: #ad5132;
-		color: #fff7f2;
+		border-color: #3b82f6;
+		background: #3b82f6;
+		color: #ffffff;
 	}
 
-	.toolbar-actions button:hover:not(:disabled),
-	.toolbar-actions button:focus-visible:not(:disabled) {
-		border-color: #255445;
-		background: #f5efe8;
-		outline: none;
+	.toolbar-actions button:hover:not(:disabled) {
+		background: #27272a;
+		border-color: #3f3f46;
+		transform: translateY(-1px);
 	}
 
-	.toolbar-actions button.primary:hover:not(:disabled),
-	.toolbar-actions button.primary:focus-visible:not(:disabled) {
-		border-color: #255445;
-		background: #255445;
+	.toolbar-actions button.primary:hover:not(:disabled) {
+		background: #2563eb;
+		border-color: #3b82f6;
+		box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+	}
+
+	.toolbar-actions button:active:not(:disabled) {
+		transform: translateY(0);
 	}
 
 	.toolbar-actions button:disabled {
 		cursor: not-allowed;
-		opacity: 0.45;
+		opacity: 0.3;
 	}
 
 	.toolbar-meta {
 		grid-column: 1 / -1;
-		font-size: 0.92rem;
-		color: #5c5446;
+		font-size: 0.85rem;
+		color: #71717a;
 	}
 
 	.workspace {
@@ -419,14 +446,15 @@
 
 	.panel {
 		display: grid;
-		gap: 16px;
+		gap: 20px;
 		min-width: 0;
 		min-height: 0;
-		padding: 16px;
-		border: 1px solid #d3c8bf;
-		border-radius: 8px;
-		background: rgba(255, 255, 255, 0.82);
-		backdrop-filter: blur(14px);
+		padding: 24px;
+		border: 1px solid #27272a;
+		border-radius: 12px;
+		background: rgba(12, 12, 14, 0.6);
+		backdrop-filter: blur(12px);
+		box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
 	}
 
 	.panel-header {
@@ -438,29 +466,39 @@
 
 	.panel-note,
 	.copy-status {
-		font-size: 0.92rem;
-		line-height: 1.4;
-		color: #5a6354;
+		font-size: 0.8rem;
+		font-weight: 500;
+		color: #71717a;
+		padding: 4px 10px;
+		border-radius: 99px;
+		background: #18181b;
+		border: 1px solid transparent;
+		transition: all 0.2s ease;
 	}
 
 	.copy-status.success {
-		color: #1c6b54;
+		color: #10b981;
+		background: rgba(16, 185, 129, 0.1);
+		border-color: rgba(16, 185, 129, 0.2);
 	}
 
 	.copy-status.error {
-		color: #8b1e25;
+		color: #ef4444;
+		background: rgba(239, 68, 68, 0.1);
+		border-color: rgba(239, 68, 68, 0.2);
 	}
 
 	.grid-frame {
-		--grid-max-height: min(55vh, 44rem);
+		--grid-max-height: min(60vh, 48rem);
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		min-height: clamp(18rem, 55vh, 44rem);
-		padding: 16px;
-		border: 1px solid #d6d8c8;
-		border-radius: 8px;
-		background: #fbfaf4;
+		min-height: clamp(20rem, 60vh, 48rem);
+		padding: 24px;
+		border: 1px solid #18181b;
+		border-radius: 12px;
+		background: #000000;
+		box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
 	}
 
 	.pixel-grid {
@@ -469,9 +507,9 @@
 		max-width: 100%;
 		gap: 1px;
 		padding: 1px;
-		border: 1px solid #d8cfca;
-		border-radius: 8px;
-		background: #d8cfca;
+		border: 1px solid #27272a;
+		border-radius: 4px;
+		background: #27272a;
 		aspect-ratio: var(--cols, 1) / var(--rows, 1);
 		touch-action: none;
 		user-select: none;
@@ -482,36 +520,40 @@
 		min-width: 0;
 		padding: 0;
 		border: 0;
-		border-radius: 2px;
-		background: #ffffff;
+		border-radius: 1px;
+		background: #09090b;
 		cursor: pointer;
 		touch-action: none;
-		transition: background-color 120ms ease;
+		transition: all 0.15s ease;
 	}
 
 	.pixel-grid button:hover {
-		background: #e7cfc0;
+		background: #18181b;
+		box-shadow: inset 0 0 8px rgba(59, 130, 246, 0.1);
+		z-index: 1;
 	}
 
 	.pixel-grid button:focus-visible {
-		background: #e7cfc0;
-		outline: 2px solid #ad5132;
+		background: #18181b;
+		outline: 2px solid #3b82f6;
 		outline-offset: -2px;
 	}
 
 	.pixel-grid button.active {
-		background: #255445;
+		background: #3b82f6;
+		box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
 	}
 
 	.pixel-grid button.active:hover,
 	.pixel-grid button.active:focus-visible {
-		background: #b75a3a;
+		background: #60a5fa;
+		box-shadow: 0 0 20px rgba(59, 130, 246, 0.7);
 	}
 
 	.json-panel {
 		grid-template-rows: auto minmax(0, 1fr);
 		align-self: start;
-		height: min(70vh, 42rem);
+		height: min(75vh, 48rem);
 		overflow: hidden;
 	}
 
@@ -520,41 +562,40 @@
 		min-height: 0;
 		width: 100%;
 		height: 100%;
-		overflow: scroll;
+		overflow: auto;
 		margin: 0;
-		padding: 16px;
-		border: 1px solid #d6d8c8;
+		padding: 20px;
+		border: 1px solid #18181b;
 		border-radius: 8px;
-		background: #fbfaf4;
+		background: #000000;
 		scrollbar-gutter: stable both-edges;
 		white-space: pre;
 		overflow-wrap: normal;
 		word-break: normal;
-		scrollbar-width: auto;
-		scrollbar-color: #ad5132 #eaded4;
-		font-family: 'SFMono-Regular', 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
-		font-size: 0.88rem;
-		line-height: 1.55;
+		font-family: 'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Consolas, monospace;
+		font-size: 0.85rem;
+		line-height: 1.6;
+		color: #3b82f6;
 	}
 
 	.json-panel pre::-webkit-scrollbar {
-		width: 12px;
-		height: 12px;
+		width: 10px;
+		height: 10px;
 	}
 
 	.json-panel pre::-webkit-scrollbar-track {
-		background: #eaded4;
-		border-radius: 999px;
+		background: #09090b;
+		border-radius: 0;
 	}
 
 	.json-panel pre::-webkit-scrollbar-thumb {
-		background: #ad5132;
-		border: 2px solid #eaded4;
-		border-radius: 999px;
+		background: #27272a;
+		border: 2px solid #09090b;
+		border-radius: 10px;
 	}
 
-	.json-panel pre::-webkit-scrollbar-corner {
-		background: #eaded4;
+	.json-panel pre::-webkit-scrollbar-thumb:hover {
+		background: #3f3f46;
 	}
 
 	@media (max-width: 920px) {
@@ -572,18 +613,18 @@
 		}
 
 		.grid-frame {
-			--grid-max-height: min(48vh, 30rem);
-			min-height: clamp(16rem, 48vh, 30rem);
+			--grid-max-height: min(50vh, 32rem);
+			min-height: clamp(18rem, 50vh, 32rem);
 		}
 
 		.json-panel {
-			height: min(24rem, 45vh);
+			height: min(28rem, 50vh);
 		}
 	}
 
 	@media (max-width: 640px) {
 		.page-shell {
-			padding: 16px;
+			padding: 24px 16px;
 		}
 
 		.panel-header {
@@ -591,7 +632,7 @@
 		}
 
 		.toolbar {
-			padding: 14px;
+			padding: 16px;
 		}
 	}
 </style>
