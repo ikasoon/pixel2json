@@ -12,6 +12,8 @@
 		paintCell,
 		serializeGrid,
 		toggleCell,
+		getCircleCells,
+		paintCells,
 		type PixelCell,
 		type PixelGrid
 	} from '$lib/pixel-grid';
@@ -48,6 +50,20 @@
 	let visitedCells: Record<string, true> = {};
 	let copyFeedbackTimer: ReturnType<typeof setTimeout> | undefined;
 
+	let brushSize = $state<number>(0);
+	let hoverRow = $state<number | null>(null);
+	let hoverCol = $state<number | null>(null);
+
+	const hoverCells = $derived(
+		hoverRow !== null && hoverCol !== null
+			? getCircleCells(hoverRow, hoverCol, brushSize, rowCount, colCount)
+			: []
+	);
+
+	function isHoverCell(r: number, c: number): boolean {
+		return hoverCells.some((cell) => cell.r === r && cell.c === c);
+	}
+
 	onDestroy(() => {
 		if (copyFeedbackTimer) {
 			clearTimeout(copyFeedbackTimer);
@@ -81,14 +97,18 @@
 	}
 
 	function applyPaint(row: number, col: number): void {
-		const cellKey = getCellKey(row, col);
+		const cellsToPaint = getCircleCells(row, col, brushSize, rowCount, colCount);
+		const unvisitedCells = cellsToPaint.filter(c => !visitedCells[getCellKey(c.r, c.c)]);
 
-		if (visitedCells[cellKey]) {
+		if (unvisitedCells.length === 0) {
 			return;
 		}
 
-		grid = paintCell(grid, row, col, paintValue);
-		visitedCells[cellKey] = true;
+		grid = paintCells(grid, unvisitedCells, paintValue);
+		
+		unvisitedCells.forEach(c => {
+			visitedCells[getCellKey(c.r, c.c)] = true;
+		});
 	}
 
 	function beginPaint(event: PointerEvent, row: number, col: number): void {
@@ -130,7 +150,9 @@
 		}
 
 		event.preventDefault();
-		grid = toggleCell(grid, row, col);
+		const cellsToPaint = getCircleCells(row, col, brushSize, rowCount, colCount);
+		const nextValue: PixelCell = grid[row][col] === 1 ? 0 : 1;
+		grid = paintCells(grid, cellsToPaint, nextValue);
 	}
 
 	function handleSizeSubmit(event: SubmitEvent): void {
@@ -222,6 +244,11 @@
 		</label>
 
 		<div class="toolbar-actions">
+			<div class="brush-size-group">
+				<button type="button" class:active={brushSize === 0} onclick={() => brushSize = 0}>브러시 S</button>
+				<button type="button" class:active={brushSize === 1} onclick={() => brushSize = 1}>브러시 M</button>
+				<button type="button" class:active={brushSize === 2} onclick={() => brushSize = 2}>브러시 L</button>
+			</div>
 			<button type="submit" class="primary" disabled={!canApplySize}>적용</button>
 			<button type="button" onclick={() => handleShape('plus')}>+ 모양</button>
 			<button type="button" onclick={() => handleShape('cross')}>x 모양</button>
@@ -260,10 +287,21 @@
 							<button
 								type="button"
 								class:active={cell === 1}
+								class:hover={isHoverCell(rowIndex, colIndex)}
 								aria-label={`Column ${colIndex + 1}, row ${rowIndex + 1}, ${cell === 1 ? 'selected' : 'empty'}`}
 								aria-pressed={cell === 1}
 								onpointerdown={(event) => beginPaint(event, rowIndex, colIndex)}
-								onpointerenter={(event) => continuePaint(event, rowIndex, colIndex)}
+								onpointerenter={(event) => {
+									hoverRow = rowIndex;
+									hoverCol = colIndex;
+									continuePaint(event, rowIndex, colIndex);
+								}}
+								onpointerleave={() => {
+									if (hoverRow === rowIndex && hoverCol === colIndex) {
+										hoverRow = null;
+										hoverCol = null;
+									}
+								}}
 								onkeydown={(event) => handleCellKeydown(event, rowIndex, colIndex)}
 							></button>
 						{/each}
@@ -487,6 +525,30 @@
 		justify-content: flex-end;
 	}
 
+	.brush-size-group {
+		display: flex;
+		gap: 4px;
+		padding: 4px;
+		border: 1px solid var(--panel-border);
+		border-radius: 10px;
+		background: var(--input-bg);
+	}
+
+	.brush-size-group button {
+		padding: 6px 12px;
+		border: none !important;
+		border-radius: 6px !important;
+		background: transparent !important;
+		font-size: 0.85rem;
+		box-shadow: none !important;
+	}
+
+	.brush-size-group button.active {
+		background: var(--button-bg) !important;
+		color: var(--accent-primary);
+		font-weight: 600;
+	}
+
 	.toolbar-actions button {
 		padding: 10px 18px;
 		border: 1px solid var(--panel-border);
@@ -633,6 +695,12 @@
 		background: var(--grid-cell-hover);
 		outline: 2px solid var(--accent-primary);
 		outline-offset: -2px;
+	}
+
+	.pixel-grid button.hover:not(.active) {
+		background: var(--grid-cell-hover);
+		box-shadow: inset 0 0 12px var(--accent-glow);
+		z-index: 1;
 	}
 
 	.pixel-grid button.active {

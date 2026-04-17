@@ -48,6 +48,36 @@ export function serializeGrid(grid: PixelGrid): string {
 	return `[\n${rows.join(',\n')}\n]`;
 }
 
+export function getCircleCells(row: number, col: number, radius: number, maxRows: number, maxCols: number): {r: number, c: number}[] {
+	const cells: {r: number, c: number}[] = [];
+	for (let r = Math.max(0, row - radius); r <= Math.min(maxRows - 1, row + radius); r++) {
+		for (let c = Math.max(0, col - radius); c <= Math.min(maxCols - 1, col + radius); c++) {
+			// Distance squared
+			if (Math.pow(r - row, 2) + Math.pow(c - col, 2) <= Math.pow(radius, 2)) {
+				cells.push({r, c});
+			}
+		}
+	}
+	return cells;
+}
+
+export function paintCells(grid: PixelGrid, cells: {r: number, c: number}[], value: PixelCell): PixelGrid {
+	const newGrid = [...grid];
+	let modified = false;
+
+	cells.forEach(({r, c}) => {
+		if (newGrid[r] && newGrid[r][c] !== undefined && newGrid[r][c] !== value) {
+			if (newGrid[r] === grid[r]) {
+				newGrid[r] = [...grid[r]];
+			}
+			newGrid[r][c] = value;
+			modified = true;
+		}
+	});
+
+	return modified ? newGrid : grid;
+}
+
 export function parseGridDimension(value: string): number | null {
 	const trimmed = value.trim();
 
